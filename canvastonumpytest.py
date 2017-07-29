@@ -96,7 +96,7 @@ class Canvas(QWidget):
 def button_clicked(canvas):
     gray_scale_canvas_content = canvas.getContent()[:, :, 0]
     print(gray_scale_canvas_content)
-    print()
+    print(flush=True)
 
 
 def main():
