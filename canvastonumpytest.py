@@ -95,7 +95,10 @@ class Canvas(QWidget):
 
 def button_clicked(canvas):
     gray_scale_canvas_content = canvas.getContent()[:, :, 0]
-    print(gray_scale_canvas_content)
+    for row in gray_scale_canvas_content:
+        for element in row:
+            print(' ' if element < 128 else 'X', end='')
+        print()
     print(flush=True)
 
 
