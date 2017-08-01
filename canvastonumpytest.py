@@ -13,6 +13,9 @@ spacing = 40
 canvas_scale = 10
 button_height = spacing
 
+# Screen options
+inv_screen_gamma = 1 / 2.2
+
 
 class Canvas(QWidget):
     def __init__(self, parent, w, h, pen_width, scale):
@@ -83,7 +86,7 @@ class Canvas(QWidget):
 
         # Draw image
         painter.scale(self.scale, self.scale)
-        painter.drawImage(paint_rect, self.small_image, paint_rect)
+        painter.drawImage(paint_rect, get_gamma_corrected_qimage(self.small_image), paint_rect)
 
         painter.end()
 
@@ -91,6 +94,17 @@ class Canvas(QWidget):
 
         if self.currentPath is not None:
             painter.drawPath(self.currentPath)
+
+
+def get_gamma_corrected_qimage(qimage):
+    corrected = qimage.copy()
+    for x in range(corrected.width()):
+        for y in range(corrected.height()):
+            curr_rgba = corrected.pixel(x, y)
+            new_rgb = sum([int(255 * (((curr_rgba >> i*8) & 255) / 255) ** inv_screen_gamma) << i*8 for i in range(3)])
+            new_rgba = new_rgb + (curr_rgba & (255 << 24))
+            corrected.setPixel(x, y, new_rgba)
+    return corrected
 
 
 def button_clicked(canvas):
