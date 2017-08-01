@@ -120,6 +120,7 @@ class MnistClassifierDemonstrator(QMainWindow):
         self.button.clicked.connect(lambda: button_clicked(self.canvas))
         layout.addWidget(self.button)
 
+        self.layout().setSizeConstraint(QLayout.SetFixedSize)
 
 
 def get_gamma_corrected_qimage(qimage):
