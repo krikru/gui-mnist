@@ -26,6 +26,9 @@ class Canvas(QWidget):
         self.scaled_h = scale * h
         self.scale = scale
 
+        # Set size
+        self.setFixedSize(self.scaled_w, self.scaled_h)
+
         # Create image
         self.small_image = QImage(self.w, self.h, QImage.Format_RGB32)
         self.small_image.fill(qRgb(255, 255, 255))
@@ -99,22 +102,24 @@ class Canvas(QWidget):
 class MnistClassifierDemonstrator(QMainWindow):
     def __init__(self, *argv, **kwargs):
         super().__init__(*argv, **kwargs)
-        # Geometry
-        sw = canvas_scale * w
-        sh = canvas_scale * h
 
-        self.resize(2 * spacing + sw, 3 * spacing + sh + button_height)
+        layout = QVBoxLayout()
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
         self.setWindowTitle('Canvas to Numpy')
 
         # Create a canvas
         self.canvas = Canvas(self, w, h, pen_width, canvas_scale)
-        self.canvas.setGeometry(QRect(spacing, spacing, sw, sh))
+        layout.addWidget(self.canvas)
 
         # Create button for getting content
         self.button = QPushButton(self)
         self.button.setText("Get canvas content")
-        self.button.setGeometry(QRect(spacing, 2 * spacing + sh, sw, button_height))
         self.button.clicked.connect(lambda: button_clicked(self.canvas))
+        layout.addWidget(self.button)
+
 
 
 def get_gamma_corrected_qimage(qimage):
