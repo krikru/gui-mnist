@@ -96,6 +96,27 @@ class Canvas(QWidget):
             painter.drawPath(self.currentPath)
 
 
+class MnistClassifierDemonstrator(QMainWindow):
+    def __init__(self, *argv, **kwargs):
+        super().__init__(*argv, **kwargs)
+        # Geometry
+        sw = canvas_scale * w
+        sh = canvas_scale * h
+
+        self.resize(2 * spacing + sw, 3 * spacing + sh + button_height)
+        self.setWindowTitle('Canvas to Numpy')
+
+        # Create a canvas
+        self.canvas = Canvas(self, w, h, pen_width, canvas_scale)
+        self.canvas.setGeometry(QRect(spacing, spacing, sw, sh))
+
+        # Create button for getting content
+        self.button = QPushButton(self)
+        self.button.setText("Get canvas content")
+        self.button.setGeometry(QRect(spacing, 2 * spacing + sh, sw, button_height))
+        self.button.clicked.connect(lambda: button_clicked(self.canvas))
+
+
 def get_gamma_corrected_qimage(qimage):
     corrected = qimage.copy()
     for x in range(corrected.width()):
@@ -117,27 +138,12 @@ def button_clicked(canvas):
 
 
 def main():
-    # Geometry
-    sw = canvas_scale * w
-    sh = canvas_scale * h
 
     # Create a Qt application
     app = QApplication(sys.argv)
 
     # Create a window
-    window = QMainWindow()
-    window.resize(2 * spacing + sw, 3 * spacing + sh + button_height)
-    window.setWindowTitle('Canvas to Numpy')
-
-    # Create a canvas
-    canvas = Canvas(window, w, h, pen_width, canvas_scale)
-    canvas.setGeometry(QRect(spacing, spacing, sw, sh))
-
-    # Create button for getting content
-    button = QPushButton(window)
-    button.setText("Get canvas content")
-    button.setGeometry(QRect(spacing, 2*spacing + sh, sw, button_height))
-    button.clicked.connect(lambda: button_clicked(canvas))
+    window = MnistClassifierDemonstrator()
 
     # Show window
     window.show()
