@@ -8,6 +8,9 @@ import numpy as np
 w = h = 28
 pen_width = 2.0
 
+# Classification task
+num_classes = 10
+
 # Layout options
 spacing = 40
 canvas_scale = 10
@@ -99,6 +102,67 @@ class Canvas(QWidget):
             painter.drawPath(self.currentPath)
 
 
+class BarChartBar(QWidget):
+    def __init__(self, parent, value=None, max_value=None, foreground_color=Qt.GlobalColor.red,
+                 background_color=Qt.GlobalColor.white, *argv, **kwargs):
+        super().__init__(parent, *argv, **kwargs)
+        self.set_value(value, max_value)
+        self.foreground_color = QColor(foreground_color)
+        self.background_color = QColor(background_color)
+
+    def set_value(self, value, max_value):
+        self.value     = value
+        self.max_value = max_value
+
+    def paintEvent(self, event):
+        if self.value is None or self.max_value is None:
+            return
+        painter = QPainter(self)
+        f_width = (self.value/self.max_value) * self.width()
+        f_width_whole_part = min(int(f_width), self.width()-1)
+        f_width_fractional_part = f_width - f_width_whole_part
+        b_width_whole_part = self.width() - f_width_whole_part - 1
+        middle_color = interpolate_qcolor(self.foreground_color, self.background_color, f_width_fractional_part)
+        gamma_corrected_middle_color = get_gamma_corrected_qcolor(middle_color)
+        painter.fillRect(QRect(0, 0, f_width_whole_part, self.height()), self.foreground_color)
+        painter.fillRect(QRect(f_width_whole_part, 0, 1, self.height()), gamma_corrected_middle_color)
+        painter.fillRect(QRect(f_width_whole_part+1, 0, b_width_whole_part, self.height()), self.background_color)
+
+
+class BarChart(QWidget):
+    def __init__(self, parent, num_bars, values=None, max_value=None):
+        super().__init__(parent)
+
+        # Create class values
+        self.num_bars = num_bars
+        self.values = values
+        self.max_value = max_value
+
+        if self.values is None:
+            self.values = [None] * self.num_bars
+
+        # Create layout and widgets
+        layout = QFormLayout()
+        self.setLayout(layout)
+        self.drawing_widgets = []
+        for idx in range(self.num_bars):
+            drawing_widget = BarChartBar(self)
+            self.drawing_widgets.append(drawing_widget)
+            layout.addRow(str(idx), drawing_widget)
+
+        self.update_bars()
+
+    def set_values(self, values, max_value=None):
+        self.values = values
+        self.max_value = max_value
+        self.update_bars()
+
+    def update_bars(self):
+        max_value = self.max_value if self.max_value else max([val for val in self.values if val is not None] + [0])
+        for idx in range(self.num_bars):
+            self.drawing_widgets[idx].set_value(self.values[idx], max_value)
+
+
 class MnistClassifierDemonstrator(QMainWindow):
     def __init__(self, *argv, **kwargs):
         super().__init__(*argv, **kwargs)
@@ -121,6 +185,22 @@ class MnistClassifierDemonstrator(QMainWindow):
         layout.addWidget(self.button)
 
         self.layout().setSizeConstraint(QLayout.SetFixedSize)
+        self.bar_chart = BarChart(self, num_classes)
+        self.bar_chart.set_values(values=[1/3]*num_classes, max_value=1)
+        layout.addWidget(self.bar_chart)
+
+
+def get_gamma_corrected_qcolor(qcolor):
+    c = np.append(np.array([qcolor.redF(), qcolor.greenF(), qcolor.blueF()]) ** inv_screen_gamma, qcolor.alphaF())
+    return QColor(*((255 * c).astype(int).tolist()))
+
+
+def interpolate_qcolor(front, back, alpha):
+    [c1, c2] = [np.append(qcolor.alphaF() * np.array([qcolor.redF(), qcolor.greenF(), qcolor.blueF()]), qcolor.alphaF())
+                for qcolor in [front, back]]
+    c = alpha * c1 + (1 - alpha) * c2
+    c[:3] *= 1 / c[3] if c[3] > 0 else 0
+    return QColor(*((255 * c).astype(int).tolist()))
 
 
 def get_gamma_corrected_qimage(qimage):
