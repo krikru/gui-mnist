@@ -1,0 +1,8 @@
+# PyCharm projects
+.idea/
+
+# Saved models
+*.h5
+
+# Python code compiled to bytecode
+__pycache__/
