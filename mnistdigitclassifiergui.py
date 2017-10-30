@@ -235,11 +235,14 @@ class BarChart(QWidget):
         # Create layout and widgets
         layout = QFormLayout()
         self.setLayout(layout)
+        self.labels = []
         self.drawing_widgets = []
         for idx in range(self.num_bars):
+            label = QLabel(str(idx))
+            self.labels.append(label)
             drawing_widget = BarChartBar(self)
             self.drawing_widgets.append(drawing_widget)
-            layout.addRow(str(idx), drawing_widget)
+            layout.addRow(label, drawing_widget)
 
         self.update_bars()
 
@@ -247,6 +250,14 @@ class BarChart(QWidget):
         self.values = values
         self.max_value = max_value
         self.update_bars()
+
+    def set_label_attributes(self, attribute_dict):
+        label_texts = [str(idx) for idx in range(self.num_bars)]
+        for idx, attributes in attribute_dict.items():
+            for attribute in attributes:
+                label_texts[idx] = '<' + attribute + '>' + label_texts[idx] + '</' + attribute + '>'
+        for label, label_text in zip(self.labels, label_texts):
+            label.setText(label_text)
 
     def update_bars(self):
         max_value = self.max_value if self.max_value else max([val for val in self.values if val is not None] + [0])
@@ -291,6 +302,7 @@ class MnistClassifierDemonstrator(QMainWindow):
         if self.mnist_digit_classifier:
             gray_scale_content = np.average(self.canvas.get_content()[:, :, :3], axis=2)
             predicted = self.mnist_digit_classifier.predict(gray_scale_content)
+            self.bar_chart.set_label_attributes(dict())
             self.bar_chart.set_values(values=predicted, max_value=1)
 
     @Slot()
@@ -299,6 +311,7 @@ class MnistClassifierDemonstrator(QMainWindow):
             image, label = self.mnist_digit_classifier.get_random_test_data_example()
             image_rgb = (image.reshape((h, w))*255 + 0.5).astype(int) * 0x010101
             self.canvas.set_content(image_rgb)
+            self.bar_chart.set_label_attributes({np.argmax(label): ['b']})
         pass
 
 
