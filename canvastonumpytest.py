@@ -244,13 +244,9 @@ class MnistClassifierDemonstrator(QMainWindow):
         self.canvas = Canvas(self, w, h, pen_width, canvas_scale)
         layout.addWidget(self.canvas)
 
-        # Create button for getting content
-        self.button = QPushButton(self)
-        self.button.setText("Get canvas content")
-        self.button.clicked.connect(lambda: button_clicked(self.canvas))
-        layout.addWidget(self.button)
 
         self.layout().setSizeConstraint(QLayout.SetFixedSize)
+        # Create bar chart
         self.bar_chart = BarChart(self, num_classes)
         self.bar_chart.set_values(values=[1/3]*num_classes, max_value=1)
         layout.addWidget(self.bar_chart)
@@ -284,15 +280,6 @@ def get_gamma_corrected_qimage(qimage):
             new_rgba = new_rgb + (curr_rgba & (255 << 24))
             corrected.setPixel(x, y, new_rgba)
     return corrected
-
-
-def button_clicked(canvas):
-    gray_scale_canvas_content = canvas.get_content()[:, :, 0]
-    for row in gray_scale_canvas_content:
-        for element in row:
-            print(' ' if element < 128 else 'X', end='')
-        print()
-    print(flush=True)
 
 
 def main():
