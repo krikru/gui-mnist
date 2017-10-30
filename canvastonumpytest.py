@@ -17,7 +17,7 @@ canvas_scale = 10
 button_height = spacing
 
 # Screen options
-inv_screen_gamma = 1 / 2.2
+screen_gamma = 2.2  # For gamma correction during rendering of graphics
 
 
 class Canvas(QWidget):
@@ -191,7 +191,7 @@ class MnistClassifierDemonstrator(QMainWindow):
 
 
 def get_gamma_corrected_qcolor(qcolor):
-    c = np.append(np.array([qcolor.redF(), qcolor.greenF(), qcolor.blueF()]) ** inv_screen_gamma, qcolor.alphaF())
+    c = np.append(np.array([qcolor.redF(), qcolor.greenF(), qcolor.blueF()]) ** (1 / screen_gamma), qcolor.alphaF())
     return QColor(*((255 * c).astype(int).tolist()))
 
 
@@ -204,6 +204,7 @@ def interpolate_qcolor(front, back, alpha):
 
 
 def get_gamma_corrected_qimage(qimage):
+    inv_screen_gamma = 1 / screen_gamma
     corrected = qimage.copy()
     for x in range(corrected.width()):
         for y in range(corrected.height()):
