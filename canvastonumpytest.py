@@ -9,6 +9,7 @@ import sys
 from PySide.QtCore import *
 from PySide.QtGui import *
 import numpy as np
+from mnistdigitclassifierlib import ClassifierType, MnistDigitClassifier
 
 
 ################################################################################
@@ -16,8 +17,31 @@ import numpy as np
 ################################################################################
 
 
+# App options
+#classify_images = False
+classify_images = True
+#train_model = False
+train_model = True
+
+# Network options
+#classifier_type = ClassifierType.Linear
+classifier_type = ClassifierType.CNN  # Convolutional neural network
+
+# Neural network training
+num_epochs = 20  # For how many epochs we should train the network. Each epoch consists of a number of batches.
+batch_size = 50  # How many examples should be processed in parallel on the GPU.
+learning_rate = 0.01  # Scale factor for determining the step length in gradient descent. Should be positive.
+learning_rate_decay = 0.0  # If positive, the learning rate will slowly decay towards zero throughout the training.
+momentum = 0.8  # A kind of "inertia" in the gradient descent algorithm. 0 means no inertia. 1 means infinite inertia.
+nesterov = True  # Whether we should use Nesterov momentum (otherwise we will use "ordinary" momentum).
+verbose = 1  # Whether Keras should be verbose during training
+
+# File names for storage of training progress.
+model_file = {ClassifierType.Linear: 'model-linear.h5',
+              ClassifierType.CNN   : 'model-cnn.h5'   }.get(classifier_type, None)
+
 # Drawing options (for drawing digits in the GUI)
-pen_width = 2.0  # The width if the pen stroke on the canvas in pixels
+pen_width = 2.5  # The width if the pen stroke on the canvas in pixels
 
 # Screen options
 screen_gamma = 2.2  # For gamma correction during rendering of graphics
@@ -29,10 +53,10 @@ screen_gamma = 2.2  # For gamma correction during rendering of graphics
 
 
 # Image shape
-w = h = 28
+w, h = MnistDigitClassifier.img_cols, MnistDigitClassifier.img_rows
 
 # Classification task
-num_classes = 10
+num_classes = MnistDigitClassifier.num_classes
 
 # Layout options
 spacing = 40
@@ -172,13 +196,14 @@ class BarChartBar(QWidget):
     def __init__(self, parent, value=None, max_value=None, foreground_color=Qt.GlobalColor.red,
                  background_color=Qt.GlobalColor.white, *argv, **kwargs):
         super().__init__(parent, *argv, **kwargs)
-        self.set_value(value, max_value)
         self.foreground_color = QColor(foreground_color)
         self.background_color = QColor(background_color)
+        self.set_value(value, max_value)
 
     def set_value(self, value, max_value):
         self.value     = value
         self.max_value = max_value
+        self.repaint()
 
     def paintEvent(self, event):
         if self.value is None or self.max_value is None:
@@ -230,10 +255,13 @@ class BarChart(QWidget):
 
 
 class MnistClassifierDemonstrator(QMainWindow):
-    def __init__(self, *argv, **kwargs):
+    def __init__(self, mnist_digit_classifier=None, *argv, **kwargs):
         super().__init__(*argv, **kwargs)
 
+        self.mnist_digit_classifier = mnist_digit_classifier
+
         layout = QVBoxLayout()
+        self.layout().setSizeConstraint(QLayout.SetFixedSize)
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
@@ -243,13 +271,22 @@ class MnistClassifierDemonstrator(QMainWindow):
         # Create a canvas
         self.canvas = Canvas(self, w, h, pen_width, canvas_scale)
         layout.addWidget(self.canvas)
+        self.canvas.content_changed.connect(self.on_canvas_content_changed)
 
-
-        self.layout().setSizeConstraint(QLayout.SetFixedSize)
         # Create bar chart
         self.bar_chart = BarChart(self, num_classes)
-        self.bar_chart.set_values(values=[1/3]*num_classes, max_value=1)
         layout.addWidget(self.bar_chart)
+
+
+        # Initialize bar chart state
+        self.on_canvas_content_changed()
+
+    @Slot()
+    def on_canvas_content_changed(self):
+        if self.mnist_digit_classifier:
+            gray_scale_content = np.average(self.canvas.get_content()[:, :, :3], axis=2)
+            predicted = self.mnist_digit_classifier.predict(gray_scale_content)
+            self.bar_chart.set_values(values=predicted, max_value=1)
 
 
 ################################################################################
@@ -283,12 +320,25 @@ def get_gamma_corrected_qimage(qimage):
 
 
 def main():
+    # Create the MnistDigitClassifier object (or not)
+    if classify_images:
+        mnist_digit_classifier = MnistDigitClassifier(classifier_type=classifier_type, model_file=model_file)
+        if train_model:
+            mnist_digit_classifier.train(batch_size=batch_size,
+                                         num_epochs=num_epochs,
+                                         learning_rate=learning_rate,
+                                         learning_rate_decay=learning_rate_decay,
+                                         momentum=momentum,
+                                         nesterov=nesterov,
+                                         verbose=verbose)
+    else:
+        mnist_digit_classifier = None
 
     # Create a Qt application
     app = QApplication(sys.argv)
 
     # Create a window
-    window = MnistClassifierDemonstrator()
+    window = MnistClassifierDemonstrator(mnist_digit_classifier=mnist_digit_classifier)
 
     # Show window
     window.show()
