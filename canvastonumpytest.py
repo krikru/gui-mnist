@@ -1,12 +1,35 @@
-# Import PySide classes
+# Copyright 2017, Kristofer Krus
+
+################################################################################
+# IMPORTS
+################################################################################
+
+
 import sys
 from PySide.QtCore import *
 from PySide.QtGui import *
 import numpy as np
 
-# Image options
+
+################################################################################
+# OPTIONS
+################################################################################
+
+
+# Drawing options (for drawing digits in the GUI)
+pen_width = 2.0  # The width if the pen stroke on the canvas in pixels
+
+# Screen options
+screen_gamma = 2.2  # For gamma correction during rendering of graphics
+
+
+################################################################################
+# CONSTANTS
+################################################################################
+
+
+# Image shape
 w = h = 28
-pen_width = 2.0
 
 # Classification task
 num_classes = 10
@@ -16,8 +39,10 @@ spacing = 40
 canvas_scale = 10
 button_height = spacing
 
-# Screen options
-screen_gamma = 2.2  # For gamma correction during rendering of graphics
+
+################################################################################
+# CLASSES
+################################################################################
 
 
 class Canvas(QWidget):
@@ -55,10 +80,9 @@ class Canvas(QWidget):
         painter = QPainter(paintee)
         painter.setPen(self.pen)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        #painter.scale(self.scale, self.scale)
         return painter
 
-    def getContent(self):
+    def get_content(self):
         return np.asarray(self.small_image.constBits()).reshape((self.h, self.w, -1))
 
     def mousePressEvent(self, event):
@@ -72,12 +96,13 @@ class Canvas(QWidget):
 
     def mouseMoveEvent(self, event):
         if (event.buttons() & Qt.LeftButton) and self.currentPath is not None:
+            # Add point to current path
             self.currentPath.lineTo(event.pos())
             self.repaint()
 
     def mouseReleaseEvent(self, event):
         if (event.button() == Qt.LeftButton) and self.currentPath is not None:
-            # Finish line and draw path
+            # Add terminal point to current path
             self.currentPath.lineTo(event.pos())
             painter = self._get_painter(self.large_image)
             painter.drawPath(self.currentPath)
@@ -130,7 +155,7 @@ class BarChartBar(QWidget):
         gamma_corrected_middle_color = get_gamma_corrected_qcolor(middle_color)
         painter.fillRect(QRect(0, 0, f_width_whole_part, self.height()), self.foreground_color)
         painter.fillRect(QRect(f_width_whole_part, 0, 1, self.height()), gamma_corrected_middle_color)
-        painter.fillRect(QRect(f_width_whole_part+1, 0, b_width_whole_part, self.height()), self.background_color)
+        painter.fillRect(QRect(f_width_whole_part + 1, 0, b_width_whole_part, self.height()), self.background_color)
 
 
 class BarChart(QWidget):
@@ -176,7 +201,7 @@ class MnistClassifierDemonstrator(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
-        self.setWindowTitle('Canvas to Numpy')
+        self.setWindowTitle("Canvas to Numpy")
 
         # Create a canvas
         self.canvas = Canvas(self, w, h, pen_width, canvas_scale)
@@ -192,6 +217,11 @@ class MnistClassifierDemonstrator(QMainWindow):
         self.bar_chart = BarChart(self, num_classes)
         self.bar_chart.set_values(values=[1/3]*num_classes, max_value=1)
         layout.addWidget(self.bar_chart)
+
+
+################################################################################
+# FUNCTIONS
+################################################################################
 
 
 def get_gamma_corrected_qcolor(qcolor):
@@ -220,7 +250,7 @@ def get_gamma_corrected_qimage(qimage):
 
 
 def button_clicked(canvas):
-    gray_scale_canvas_content = canvas.getContent()[:, :, 0]
+    gray_scale_canvas_content = canvas.get_content()[:, :, 0]
     for row in gray_scale_canvas_content:
         for element in row:
             print(' ' if element < 128 else 'X', end='')
