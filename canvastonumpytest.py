@@ -21,6 +21,9 @@ screen_gamma = 2.2  # For gamma correction during rendering of graphics
 
 
 class Canvas(QWidget):
+    _background_color = qRgb(0, 0, 0)
+    _foreground_color = qRgb(255, 255, 255)
+
     def __init__(self, parent, w, h, pen_width, scale):
         super().__init__(parent)
         self.w = w
@@ -34,12 +37,13 @@ class Canvas(QWidget):
 
         # Create image
         self.small_image = QImage(self.w, self.h, QImage.Format_RGB32)
-        self.small_image.fill(qRgb(255, 255, 255))
+        self.small_image.fill(self._background_color)
         self.large_image = QImage(self.scaled_w, self.scaled_h, QImage.Format_RGB32)
-        self.large_image.fill(qRgb(255, 255, 255))
+        self.large_image.fill(self._background_color)
 
         # Create pen
         self.pen = QPen()
+        self.pen.setColor(self._foreground_color)
         self.pen.setJoinStyle(Qt.RoundJoin)
         self.pen.setCapStyle(Qt.RoundCap)
         self.pen.setWidthF(scale * pen_width)
