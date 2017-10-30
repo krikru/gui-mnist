@@ -46,6 +46,8 @@ button_height = spacing
 
 
 class Canvas(QWidget):
+    content_changed = Signal()
+
     _background_color = qRgb(0, 0, 0)
     _foreground_color = qRgb(255, 255, 255)
 
@@ -76,44 +78,75 @@ class Canvas(QWidget):
         # There is currently no path
         self.currentPath = None
 
+        self.content_changed.connect(self.repaint)
+
     def _get_painter(self, paintee):
         painter = QPainter(paintee)
         painter.setPen(self.pen)
         painter.setRenderHint(QPainter.Antialiasing, True)
         return painter
 
+    def _derive_small_image(self, large_image=None):
+        if large_image is None:
+            large_image = self.large_image
+        # Downsample image
+        self.small_image = large_image.scaled(self.w, self.h, mode=Qt.SmoothTransformation)
+        self.content_changed.emit()
+
+    def _current_path_updated(self, terminate_path=False):
+        # Determine whether to draw on the large image directly or whether to make a temporary copy
+        paintee = self.large_image if terminate_path else self.large_image.copy()
+
+        # Draw path on the large image of choice
+        painter = self._get_painter(paintee)
+        if self.currentPath.elementCount() != 1:
+            painter.drawPath(self.currentPath)
+        else:
+            painter.drawPoint(self.currentPath.elementAt(0))
+        painter.end()
+
+        # Optionally terminate the path
+        if terminate_path:
+            self.currentPath = None
+
+        # Downsample image
+        self._derive_small_image(paintee)
+
+    def _clear_image(self):
+        self.large_image.fill(self._background_color)
+        self._derive_small_image()
+
     def get_content(self):
         return np.asarray(self.small_image.constBits()).reshape((self.h, self.w, -1))
 
+    def set_content(self, image_rgb):
+        for row in range(image_rgb.shape[0]):
+            for col in range(image_rgb.shape[1]):
+                self.small_image.setPixel(col, row, image_rgb[row, col])
+        self.large_image = self.small_image.scaled(self.scaled_w, self.scaled_h, mode=Qt.SmoothTransformation)
+        self._derive_small_image()
+        self.content_changed.emit()
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
+            # Create new path
             self.currentPath = QPainterPath()
             self.currentPath.moveTo(event.pos())
-            painter = self._get_painter(self.large_image)
-            painter.drawPoint(event.pos())
-            painter.end()
-            self.repaint()
+            self._current_path_updated()
 
     def mouseMoveEvent(self, event):
         if (event.buttons() & Qt.LeftButton) and self.currentPath is not None:
             # Add point to current path
             self.currentPath.lineTo(event.pos())
-            self.repaint()
+            self._current_path_updated()
 
     def mouseReleaseEvent(self, event):
         if (event.button() == Qt.LeftButton) and self.currentPath is not None:
             # Add terminal point to current path
             self.currentPath.lineTo(event.pos())
-            painter = self._get_painter(self.large_image)
-            painter.drawPath(self.currentPath)
-            painter.end()
-            self.currentPath = None
+            self._current_path_updated(terminate_path=True)
         elif event.button() == Qt.RightButton:
-            self.large_image.fill(qRgb(255, 255, 255))
-
-        # Downsample image
-        self.small_image = self.large_image.scaled(self.w, self.h, mode=Qt.SmoothTransformation)
-        self.repaint()
+            self._clear_image()
 
     def paintEvent(self, event):
         paint_rect = event.rect()  # Only paint the surface that needs painting
@@ -127,8 +160,12 @@ class Canvas(QWidget):
 
         painter = self._get_painter(self)
 
-        if self.currentPath is not None:
-            painter.drawPath(self.currentPath)
+        #if self.currentPath is not None:
+        #    painter.drawPath(self.currentPath)
+
+    @Slot()
+    def repaint(self):
+        super().repaint()
 
 
 class BarChartBar(QWidget):
