@@ -277,6 +277,11 @@ class MnistClassifierDemonstrator(QMainWindow):
         self.bar_chart = BarChart(self, num_classes)
         layout.addWidget(self.bar_chart)
 
+        # Create a button for retrieving a random test image from the dataset
+        self.load_random_test_image_button = QPushButton(self)
+        self.load_random_test_image_button.setText("Load random test image")
+        layout.addWidget(self.load_random_test_image_button)
+        self.load_random_test_image_button.clicked.connect(self.on_load_random_test_image_button_clicked)
 
         # Initialize bar chart state
         self.on_canvas_content_changed()
@@ -287,6 +292,14 @@ class MnistClassifierDemonstrator(QMainWindow):
             gray_scale_content = np.average(self.canvas.get_content()[:, :, :3], axis=2)
             predicted = self.mnist_digit_classifier.predict(gray_scale_content)
             self.bar_chart.set_values(values=predicted, max_value=1)
+
+    @Slot()
+    def on_load_random_test_image_button_clicked(self):
+        if self.mnist_digit_classifier:
+            image, label = self.mnist_digit_classifier.get_random_test_data_example()
+            image_rgb = (image.reshape((h, w))*255 + 0.5).astype(int) * 0x010101
+            self.canvas.set_content(image_rgb)
+        pass
 
 
 ################################################################################
