@@ -34,6 +34,8 @@ learning_rate = 0.01  # Scale factor for determining the step length in gradient
 learning_rate_decay = 0.0  # If positive, the learning rate will slowly decay towards zero throughout the training.
 momentum = 0.8  # A kind of "inertia" in the gradient descent algorithm. 0 means no inertia. 1 means infinite inertia.
 nesterov = True  # Whether we should use Nesterov momentum (otherwise we will use "ordinary" momentum).
+batch_normalization = True  # Whether batch normalization should be used
+dropout = True  # Whether dropout should be used
 verbose = 1  # Whether Keras should be verbose during training
 
 # File names for storage of training progress.
@@ -348,7 +350,10 @@ def get_gamma_corrected_qimage(qimage):
 def main():
     # Create the MnistDigitClassifier object (or not)
     if classify_images:
-        mnist_digit_classifier = MnistDigitClassifier(classifier_type=classifier_type, model_file=model_file)
+        mnist_digit_classifier = MnistDigitClassifier(classifier_type=classifier_type,
+                                                      model_file=model_file,
+                                                      batch_normalization=batch_normalization,
+                                                      dropout=dropout)
         if train_model:
             mnist_digit_classifier.train(batch_size=batch_size,
                                          num_epochs=num_epochs,

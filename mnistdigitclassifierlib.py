@@ -43,7 +43,12 @@ class MnistDigitClassifier:
     img_rows, img_cols = 28, 28
 
     # Constructor
-    def __init__(self, classifier_type=ClassifierType.CNN, model_file=None, validation_split=1/12):
+    def __init__(self,
+                 classifier_type=ClassifierType.CNN,
+                 model_file=None,
+                 batch_normalization=True,
+                 dropout=True,
+                 validation_split=1/12):
         
         # Derived values
         self._input_shape = ((1, self.img_rows, self.img_cols) if K.image_data_format() == 'channels_first' else
@@ -55,25 +60,32 @@ class MnistDigitClassifier:
             self._model = load_model(self._model_file)
         else:
             if classifier_type == ClassifierType.Linear:
-                self._model = Sequential([
-                    Flatten(input_shape=self._input_shape),
-                    Dense(self.num_classes, activation='softmax')
-                ])
+                # Create a linear classifier
+                self._model = Sequential()
+                self._model.add(Flatten(input_shape=self._input_shape))
+                if dropout:
+                    self._model.add(Dropout(0.5))
+                self._model.add(Dense(self.num_classes, activation='softmax'))
             elif classifier_type == ClassifierType.CNN:
-                self._model = Sequential([
-                    InputLayer(input_shape=self._input_shape),
-                    Conv2D(32, kernel_size=(3, 3), activation='relu'),
-                    BatchNormalization(),
-                    Conv2D(64, (3, 3), activation='relu'),
-                    MaxPooling2D(pool_size=(2, 2)),
-                    Flatten(),
-                    Dropout(0.5),
-                    BatchNormalization(),
-                    Dense(128, activation='relu'),
-                    Dropout(0.5),
-                    BatchNormalization(),
-                    Dense(self.num_classes, activation='softmax')
-                ])
+                # Create a convolutional neural network
+                self._model = Sequential()
+                self._model.add(InputLayer(input_shape=self._input_shape))
+                self._model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
+                if batch_normalization:
+                    self._model.add(BatchNormalization())
+                self._model.add(Conv2D(64, (3, 3), activation='relu'))
+                self._model.add(MaxPooling2D(pool_size=(2, 2)))
+                self._model.add(Flatten())
+                if dropout:
+                    self._model.add(Dropout(0.5))
+                if batch_normalization:
+                    self._model.add(BatchNormalization())
+                self._model.add(Dense(128, activation='relu'))
+                if dropout:
+                    self._model.add(Dropout(0.5))
+                if batch_normalization:
+                    self._model.add(BatchNormalization())
+                self._model.add(Dense(self.num_classes, activation='softmax'))
 
         self._validation_split = validation_split
         self._data = None
