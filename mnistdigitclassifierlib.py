@@ -33,7 +33,8 @@ class VariablGroup:
 # The types of classifiers
 class ClassifierType(Enum):
     Linear = 1
-    CNN = 2  # CNN = convolutional neural network
+    FCNN = 2  # FCNN = fully-connected neural network
+    CNN = 3  # CNN = convolutional neural network
 
 
 # Class for creating, training and deploying a neural network
@@ -65,6 +66,23 @@ class MnistDigitClassifier:
                 self._model.add(Flatten(input_shape=self._input_shape))
                 if dropout:
                     self._model.add(Dropout(0.5))
+                self._model.add(Dense(self.num_classes, activation='softmax'))
+            elif classifier_type == ClassifierType.FCNN:
+                # Create a fully-connected neural network
+                self._model = Sequential()
+                self._model.add(Flatten(input_shape=self._input_shape))
+                if dropout:
+                    self._model.add(Dropout(0.5))
+                self._model.add(Dense(512, activation='relu'))
+                if dropout:
+                    self._model.add(Dropout(0.5))
+                if batch_normalization:
+                    self._model.add(BatchNormalization())
+                self._model.add(Dense(512, activation='relu'))
+                if dropout:
+                    self._model.add(Dropout(0.5))
+                if batch_normalization:
+                    self._model.add(BatchNormalization())
                 self._model.add(Dense(self.num_classes, activation='softmax'))
             elif classifier_type == ClassifierType.CNN:
                 # Create a convolutional neural network
