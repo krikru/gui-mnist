@@ -266,7 +266,7 @@ class MnistClassifierDemonstrator(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
-        self.setWindowTitle("Canvas to Numpy")
+        self.setWindowTitle("MNIST digit classifier")
 
         # Create a canvas
         self.canvas = Canvas(self, w, h, pen_width, canvas_scale)
