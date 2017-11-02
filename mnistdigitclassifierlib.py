@@ -64,15 +64,11 @@ class MnistDigitClassifier:
                 # Create a linear classifier
                 self._model = Sequential()
                 self._model.add(Flatten(input_shape=self._input_shape))
-                if dropout:
-                    self._model.add(Dropout(0.5))
                 self._model.add(Dense(self.num_classes, activation='softmax'))
             elif classifier_type == ClassifierType.NNFCL:
                 # Create a neural network with only fully-connected layers
                 self._model = Sequential()
                 self._model.add(Flatten(input_shape=self._input_shape))
-                if dropout:
-                    self._model.add(Dropout(0.5))
                 self._model.add(Dense(512, activation='relu'))
                 if dropout:
                     self._model.add(Dropout(0.5))
