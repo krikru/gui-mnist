@@ -18,16 +18,16 @@ from mnistdigitclassifierlib import ClassifierType, MnistDigitClassifier
 ################################################################################
 
 
-# App options
+# Application
 #classify_images = False
 classify_images = True
 #skip_training_if_pretrained_model_exists = False
 skip_training_if_pretrained_model_exists = True
 
-# Network options
-#classifier_type = ClassifierType.Linear
-#classifier_type = ClassifierType.NNFCL  # Neural network with only fully-connected layers
-classifier_type = ClassifierType.CNN  # Convolutional neural network
+# Neural network type
+#classifier_type = ClassifierType.Linear  # Neural network with no hidden layer
+#classifier_type = ClassifierType.NNFCL  # NNFCL = Neural Network with only Fully-Connected Layers
+classifier_type = ClassifierType.CNN  # CNN = Convolutional Neural Network
 
 # Neural network training
 num_epochs = 20  # For how many epochs we should train the network. Each epoch consists of a number of batches.
@@ -45,7 +45,7 @@ model_file = {ClassifierType.Linear: 'model-linear.h5',
               ClassifierType.NNFCL : 'model-nnfcl.h5' ,
               ClassifierType.CNN   : 'model-cnn.h5'   }.get(classifier_type, None)
 
-# Drawing options (for drawing digits in the GUI)
+# Drawing (for drawing digits in the GUI)
 pen_width = 2.5  # The width if the pen stroke on the canvas in pixels
 
 
@@ -330,8 +330,8 @@ def interpolate_qcolor(front, back, alpha):
 
 
 def main():
-    # Create the MnistDigitClassifier object (or not)
     if classify_images:
+        # Create the MnistDigitClassifier object
         mnist_digit_classifier = MnistDigitClassifier(classifier_type=classifier_type,
                                                       model_file=model_file,
                                                       batch_normalization=batch_normalization,
@@ -340,6 +340,7 @@ def main():
         model_file_exists = isinstance(model_file, str) and os.path.isfile(model_file)
         train_model = not (skip_training_if_pretrained_model_exists and model_file_exists)
         if train_model:
+            # Train model
             mnist_digit_classifier.train(batch_size=batch_size,
                                          num_epochs=num_epochs,
                                          learning_rate=learning_rate,

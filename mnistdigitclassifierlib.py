@@ -32,9 +32,9 @@ class VariablGroup:
 
 # The types of classifiers
 class ClassifierType(Enum):
-    Linear = 1
-    NNFCL = 2  # NNFCL = neural network with only fully-connected layers
-    CNN = 3  # CNN = convolutional neural network
+    Linear = 1  # Neural network with no hidden layer
+    NNFCL = 2  # NNFCL = Neural Network with only Fully-Connected Layers
+    CNN = 3  # CNN = Convolutional Neural Network
 
 
 # Class for creating, training and deploying a neural network
