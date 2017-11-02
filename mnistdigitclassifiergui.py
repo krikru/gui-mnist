@@ -47,9 +47,6 @@ model_file = {ClassifierType.Linear: 'model-linear.h5',
 # Drawing options (for drawing digits in the GUI)
 pen_width = 2.5  # The width if the pen stroke on the canvas in pixels
 
-# Screen options
-screen_gamma = 2.2  # For gamma correction during rendering of graphics
-
 
 ################################################################################
 # CONSTANTS
@@ -182,7 +179,7 @@ class Canvas(QWidget):
 
         # Draw image
         painter.scale(self.scale, self.scale)
-        painter.drawImage(paint_rect, get_gamma_corrected_qimage(self.small_image), paint_rect)
+        painter.drawImage(paint_rect, self.small_image, paint_rect)
 
         painter.end()
 
@@ -218,9 +215,8 @@ class BarChartBar(QWidget):
         f_width_fractional_part = f_width - f_width_whole_part
         b_width_whole_part = self.width() - f_width_whole_part - 1
         middle_color = interpolate_qcolor(self.foreground_color, self.background_color, f_width_fractional_part)
-        gamma_corrected_middle_color = get_gamma_corrected_qcolor(middle_color)
         painter.fillRect(QRect(0, 0, f_width_whole_part, self.height()), self.foreground_color)
-        painter.fillRect(QRect(f_width_whole_part, 0, 1, self.height()), gamma_corrected_middle_color)
+        painter.fillRect(QRect(f_width_whole_part, 0, 1, self.height()), middle_color)
         painter.fillRect(QRect(f_width_whole_part + 1, 0, b_width_whole_part, self.height()), self.background_color)
 
 
@@ -324,29 +320,12 @@ class MnistClassifierDemonstrator(QMainWindow):
 ################################################################################
 
 
-def get_gamma_corrected_qcolor(qcolor):
-    c = np.append(np.array([qcolor.redF(), qcolor.greenF(), qcolor.blueF()]) ** (1 / screen_gamma), qcolor.alphaF())
-    return QColor(*((255 * c).astype(int).tolist()))
-
-
 def interpolate_qcolor(front, back, alpha):
     [c1, c2] = [np.append(qcolor.alphaF() * np.array([qcolor.redF(), qcolor.greenF(), qcolor.blueF()]), qcolor.alphaF())
                 for qcolor in [front, back]]
     c = alpha * c1 + (1 - alpha) * c2
     c[:3] *= 1 / c[3] if c[3] > 0 else 0
     return QColor(*((255 * c).astype(int).tolist()))
-
-
-def get_gamma_corrected_qimage(qimage):
-    inv_screen_gamma = 1 / screen_gamma
-    corrected = qimage.copy()
-    for x in range(corrected.width()):
-        for y in range(corrected.height()):
-            curr_rgba = corrected.pixel(x, y)
-            new_rgb = sum([int(255 * (((curr_rgba >> i*8) & 255) / 255) ** inv_screen_gamma) << i*8 for i in range(3)])
-            new_rgba = new_rgb + (curr_rgba & (255 << 24))
-            corrected.setPixel(x, y, new_rgba)
-    return corrected
 
 
 def main():
