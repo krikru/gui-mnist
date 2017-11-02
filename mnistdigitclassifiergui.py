@@ -25,7 +25,7 @@ train_model = True
 
 # Network options
 #classifier_type = ClassifierType.Linear
-#classifier_type = ClassifierType.FCNN  # Fully-connected neural network
+#classifier_type = ClassifierType.NNFCL  # Neural network with only fully-connected layers
 classifier_type = ClassifierType.CNN  # Convolutional neural network
 
 # Neural network training
@@ -41,7 +41,7 @@ verbose = 1  # Whether Keras should be verbose during training
 
 # File names for storage of training progress.
 model_file = {ClassifierType.Linear: 'model-linear.h5',
-              ClassifierType.FCNN  : 'model-fcnn.h5'  ,
+              ClassifierType.NNFCL : 'model-nnfcl.h5' ,
               ClassifierType.CNN   : 'model-cnn.h5'   }.get(classifier_type, None)
 
 # Drawing options (for drawing digits in the GUI)
