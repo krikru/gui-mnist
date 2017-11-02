@@ -5,6 +5,7 @@
 ################################################################################
 
 
+import os
 import sys
 from PySide.QtCore import *
 from PySide.QtGui import *
@@ -20,8 +21,8 @@ from mnistdigitclassifierlib import ClassifierType, MnistDigitClassifier
 # App options
 #classify_images = False
 classify_images = True
-#train_model = False
-train_model = True
+#skip_training_if_pretrained_model_exists = False
+skip_training_if_pretrained_model_exists = True
 
 # Network options
 #classifier_type = ClassifierType.Linear
@@ -335,6 +336,9 @@ def main():
                                                       model_file=model_file,
                                                       batch_normalization=batch_normalization,
                                                       dropout=dropout)
+        # Determine whether to train the model
+        model_file_exists = isinstance(model_file, str) and os.path.isfile(model_file)
+        train_model = not (skip_training_if_pretrained_model_exists and model_file_exists)
         if train_model:
             mnist_digit_classifier.train(batch_size=batch_size,
                                          num_epochs=num_epochs,
