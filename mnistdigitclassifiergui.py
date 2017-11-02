@@ -48,6 +48,9 @@ model_file = {ClassifierType.Linear: 'model-linear.h5',
 # Drawing (for drawing digits in the GUI)
 pen_width = 2.5  # The width if the pen stroke on the canvas in pixels
 
+# GUI layout
+canvas_scale = 10
+
 
 ################################################################################
 # CONSTANTS
@@ -59,11 +62,6 @@ w, h = MnistDigitClassifier.img_cols, MnistDigitClassifier.img_rows
 
 # Classification task
 num_classes = MnistDigitClassifier.num_classes
-
-# Layout options
-spacing = 40
-canvas_scale = 10
-button_height = spacing
 
 
 ################################################################################
