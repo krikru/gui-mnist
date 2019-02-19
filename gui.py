@@ -60,7 +60,7 @@ model_file = {ClassifierType.Linear: 'model-linear.h5',
               ClassifierType.CNN   : 'model-cnn.h5'   }.get(classifier_type, None)
 
 # Drawing (for drawing digits in the GUI)
-pen_width = 2.5  # The width if the pen stroke on the canvas in pixels
+pen_width = 2.5  # The width of the pen stroke on the canvas in pixels
 
 # GUI layout
 canvas_scale = 10
