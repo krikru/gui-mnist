@@ -1,4 +1,4 @@
-# Copyright 2017 Kristofer Krus
+# Copyright 2017, 2019 Kristofer Krus
 #
 # This file is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -97,8 +97,7 @@ class MnistDigitClassifier:
             elif classifier_type == ClassifierType.CNN:
                 # Create a convolutional neural network
                 self._model = Sequential()
-                self._model.add(InputLayer(input_shape=self._input_shape))
-                self._model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
+                self._model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=self._input_shape))
                 if batch_normalization:
                     self._model.add(BatchNormalization())
                 self._model.add(Conv2D(64, (3, 3), activation='relu'))
