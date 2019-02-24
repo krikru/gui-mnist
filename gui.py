@@ -1,4 +1,4 @@
-# Copyright 2017 Kristofer Krus
+# Copyright 2017, 2019 Kristofer Krus
 #
 # This file is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,9 @@
 
 import os
 import sys
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide2.QtCore import Qt, Signal, Slot, QRect
+from PySide2.QtGui import QColor, QImage, QPen, QPainter, QPainterPath
+from PySide2.QtWidgets import QWidget, QApplication, QMainWindow, QLayout, QVBoxLayout, QFormLayout, QLabel, QPushButton
 import numpy as np
 from mnistdigitclassifierlib import ClassifierType, MnistDigitClassifier
 
@@ -86,8 +87,8 @@ num_classes = MnistDigitClassifier.num_classes
 class Canvas(QWidget):
     content_changed = Signal()
 
-    _background_color = qRgb(0, 0, 0)
-    _foreground_color = qRgb(255, 255, 255)
+    _background_color = QColor.fromRgb(0, 0, 0)
+    _foreground_color = QColor.fromRgb(255, 255, 255)
 
     def __init__(self, parent, w, h, pen_width, scale):
         super().__init__(parent)
