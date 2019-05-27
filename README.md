@@ -4,10 +4,9 @@ This is a simple demonstrator of an [MNIST](http://yann.lecun.com/exdb/mnist/) c
 
 ## Prerequisites
 
-* [Python 3](https://www.python.org/) (3.6.8; make sure the version is compatible TensorFlow)
-* [TensorFlow](https://www.tensorflow.org/install) (tensorflow-gpu 1.12.0)
-* [Keras](https://keras.io/) (2.2.4)
-* [PySide 2](https://pypi.org/project/PySide2/) (5.12.1)
+* [Python 3](https://www.python.org/) (3.7.2; make sure the version is compatible TensorFlow)
+* [TensorFlow](https://www.tensorflow.org/install) (tensorflow-gpu 1.13.1)
+* [PySide 2](https://pypi.org/project/PySide2/) (5.12.3)
 * [h5py](https://pypi.org/project/h5py/) (2.9.0)
 
 The text within parenthesis specifies the versions this repository is known to be compatible with.

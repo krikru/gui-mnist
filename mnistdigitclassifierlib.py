@@ -20,15 +20,14 @@
 
 
 import os
-from keras.datasets import mnist
-from keras.models import Sequential, load_model
-from keras.layers import InputLayer, Dense, Dropout, Conv2D, MaxPooling2D, Flatten
-from keras.layers.normalization import BatchNormalization
-from keras.objectives import categorical_crossentropy
-from keras.optimizers import SGD
-from keras.metrics import categorical_accuracy as accuracy
-from keras import backend as K
-from keras.utils import to_categorical
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import InputLayer, Dense, Dropout, Conv2D, MaxPooling2D, Flatten, BatchNormalization
+from tensorflow.keras.backend import categorical_crossentropy
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.metrics import categorical_accuracy as accuracy
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import to_categorical
 import numpy as np
 from numpy.random import randint
 from enum import Enum
