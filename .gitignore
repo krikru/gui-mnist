@@ -6,3 +6,6 @@
 
 # Python code compiled to bytecode
 __pycache__/
+
+# Emacs autosave files
+*~
