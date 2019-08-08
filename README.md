@@ -11,6 +11,32 @@ This is a simple demonstrator of an [MNIST](http://yann.lecun.com/exdb/mnist/) c
 
 The text within parenthesis specifies the versions this repository is known to be compatible with.
 
+## Conda environment
+
+To create a Conda environment that fulfills the prerequisites:
+
+```
+conda env create --file environment.yml
+```
+
+To update an already existing environment:
+
+```
+conda env update --file environment.yml
+```
+
+To activate the environment:
+
+```
+conda activate gui-mnist
+```
+
+To deactivate the environment:
+
+```
+conda deactivate
+```
+
 ## Usage
 
 Run the graphical user interface as follows:
